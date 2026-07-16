@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unity & VRChat Map Services</title>
+    <!-- Шрифт Montserrat -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <!-- Иконки FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Цветовая палитра */
+        :root {
+            --bg-main: #020713;
+            --bg-secondary: #0a152d;
+            --cyan: #40e0d0;
+            --cyan-glow: rgba(64, 224, 208, 0.4);
+            --white: #ffffff;
+            --text-muted: #8b9bb4;
+            --card-border: rgba(64, 224, 208, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(64, 224, 208, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 10%, rgba(0, 102, 255, 0.1) 0%, transparent 40%);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- НАВИГАЦИЯ --- */
+        header {
+            padding: 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--cyan);
+            font-size: 1.8rem;
+        }
+
+        .btn-primary {
+            background: transparent;
+            color: var(--cyan);
+            border: 2px solid var(--cyan);
+            padding: 10px 25px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--cyan);
+            color: var(--bg-main);
+            box-shadow: 0 0 20px var(--cyan-glow);
+        }
+
+        /* --- ГЛАВНЫЙ ЭКРАН (HERO) --- */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 80px 0 100px;
+            gap: 50px;
+        }
+
+        .hero-text {
+            flex: 1;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .hero-text h1 span {
+            color: var(--cyan);
+            text-shadow: 0 0 20px var(--cyan-glow);
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            max-width: 500px;
+        }
+
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* --- CSS-АРТ: КИБЕР-ЯДРО (Замена картинки) --- */
+        .tech-core {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            aspect-ratio: 1/1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Свечение на фоне */
+        .core-glow {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            background: var(--cyan);
+            filter: blur(120px);
+            opacity: 0.35;
+            border-radius: 50%;
+        }
+
+        /* Вращающиеся орбиты */
+        .core-ring {
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            border: 2px dashed rgba(64, 224, 208, 0.4);
+            border-radius: 50%;
+            animation: spinRing 25s linear infinite;
+        }
+        
+        .core-ring-2 {
+            width: 400px;
+            height: 400px;
+            border: 1px solid rgba(64, 224, 208, 0.1);
+            border-radius: 50%;
+            position: absolute;
+            animation: spinRing 40s linear infinite reverse;
+        }
+
+        @keyframes spinRing {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Центральный стеклянный ромб */
+        .core-glass {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            background: rgba(11, 24, 56, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(64, 224, 208, 0.6);
+            border-radius: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 40px rgba(64, 224, 208, 0.2), inset 0 0 20px rgba(64, 224, 208, 0.2);
+            transform: rotate(45deg);
+            animation: floatCore 6s ease-in-out infinite;
+            z-index: 5;
+        }
+
+        /* Иконка Unity внутри ромба */
+        .core-glass i {
+            font-size: 5.5rem;
+            color: var(--cyan);
+            transform: rotate(-45deg); /* Возвращаем иконку в прямое положение */
+            filter: drop-shadow(0 0 15px var(--cyan-glow));
+        }
+
+        @keyframes floatCore {
+            0%, 100% { transform: rotate(45deg) translateY(0); }
+            50% { transform: rotate(45deg) translateY(-25px); }
+        }
+
+        /* Парящие плашки-характеристики */
+        .float-badge {
+            position: absolute;
+            background: rgba(2, 7, 19, 0.85);
+            border: 1px solid var(--cyan);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-1 { 
+            top: 15%; 
+            right: 0; 
+            animation: floatBadge 5s ease-in-out infinite; 
+            animation-delay: 1s; 
+        }
+        
+        .badge-2 { 
+            bottom: 15%; 
+            left: 0; 
+            animation: floatBadge 7s ease-in-out infinite; 
+            animation-delay: 2s; 
+            color: var(--cyan); 
+        }
+
+        @keyframes floatBadge {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* --- БЛОК УСЛУГ (СЕТКА) --- */
+        .services-section {
+            padding: 80px 0;
+            background: linear-gradient(180deg, transparent, rgba(10, 21, 45, 0.8), transparent);
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 60px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--card-border);
+            padding: 40px 30px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--cyan);
+            box-shadow: 0 10px 30px rgba(64, 224, 208, 0.1);
+        }
+
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(4, 12, 30, 0.8);
+            border: 1px solid var(--card-border);
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            color: var(--cyan);
+            margin-bottom: 25px;
+        }
+
+        .service-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .service-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* --- БЛОК ТЕХНОЛОГИЙ (БАННЕРЫ) --- */
+        .tech-section {
+            padding: 80px 0;
+        }
+
+        .banners-wrapper {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tech-banner {
+            flex: 1;
+            min-width: 300px;
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .banner-culling {
+            background: #061538;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .banner-culling i {
+            font-size: 3rem;
+            color: var(--cyan);
+        }
+
+        .banner-culling h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .banner-culling p {
+            color: var(--cyan);
+            font-weight: 600;
+        }
+
+        .banner-vrchat {
+            background: linear-gradient(135deg, #ffffff, #d5dce6);
+            color: #000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .check-circle {
+            background: #4caf50;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .banner-vrchat h3 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 5px;
+            color: #0b152d;
+        }
+
+        .banner-vrchat p {
+            font-weight: 800;
+            color: #3b4b6b;
+            font-size: 1.1rem;
+        }
+
+        /* --- ПОДВАЛ --- */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            margin-top: 50px;
+        }
+
+        /* --- АДАПТИВНОСТЬ (МОБИЛЬНЫЕ) --- */
+        @media (max-width: 900px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                padding: 40px 0;
+            }
+            .hero-text h1 { font-size: 2.5rem; }
+            .hero-text p { margin: 0 auto 30px; }
+            .banners-wrapper { flex-direction: column; }
+            .tech-core { transform: scale(0.8); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- ШАПКА -->
+        <header>
+            <div class="logo">
+                <i class="fa-brands fa-unity"></i> MAP PORT
+            </div>
+            <a href="#contact" class="btn-primary">Get a Quote</a>
+        </header>
+
+        <!-- ГЛАВНЫЙ ЭКРАН -->
+        <section class="hero">
+            <div class="hero-text">
+                <h1>Unity & VRChat <br><span>Map Service</span></h1>
+                <p>Ultra-optimized ports for your worlds. We bring your vision to life with maximum performance for both PCVR and standalone headsets.</p>
+                <a href="#contact" class="btn-primary" style="background: var(--cyan); color: var(--bg-main);">Start Project</a>
+            </div>
+            
+            <div class="hero-image">
+                <!-- CSS Анимация вместо картинки -->
+                <div class="tech-core">
+                    <div class="core-glow"></div>
+                    <div class="core-ring"></div>
+                    <div class="core-ring-2"></div>
+                    
+                    <div class="core-glass">
+                        <i class="fa-brands fa-unity"></i>
+                    </div>
+
+                    <div class="float-badge badge-1">
+                        <i class="fa-solid fa-bolt"></i> 300+ FPS
+                    </div>
+                    <div class="float-badge badge-2">
+                        <i class="fa-solid fa-vr-cardboard"></i> Quest Ready
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- БЛОК ПРЕИМУЩЕСТВ -->
+    <section class="services-section">
+        <div class="container">
+            <h2 class="section-title">Why Choose Our Service?</h2>
+            <div class="services-grid">
+                
+                <div class="service-card">
+                    <div class="service-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h3>Pro Optimization</h3>
+                    <p>Experience buttery smooth 300+ FPS on vast maps. We optimize polygons, textures, and draw calls for ultimate performance.</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon"><i class="fa-solid fa-user"></i></div>
+                    <h3>Seamless Import</h3>
+                    <p>Get fully set-up materials, perfectly placed colliders, and organized hierarchies ready for immediate use in your Unity project.</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>Expert Baking</h3>
+                    <p>Professional lightmapping with realistic color bleeding. Get cinematic shadows without sacrificing real-time rendering speed.</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon"><i class="fa-solid fa-palette"></i></div>
+                    <h3>Custom Themes</h3>
+                    <p>Need a specific vibe? From cyberpunk neon to cozy nature environments, message me to adapt styles exactly to your needs.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- БЛОК ТЕХНИЧЕСКИХ ОСОБЕННОСТЕЙ -->
+    <section class="tech-section">
+        <div class="container">
+            <div class="banners-wrapper">
+                
+                <div class="tech-banner banner-culling">
+                    <i class="fa-solid fa-cube"></i>
+                    <div>
+                        <h3>Perfect Occlusion</h3>
+                        <p>FULL MAP CULLING SETUP</p>
+                    </div>
+                </div>
+
+                <div class="tech-banner banner-vrchat">
+                    <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+                    <div>
+                        <h3>VRCHAT READY</h3>
+                        <p>OPTIMIZED FOR QUEST & PC</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ПОДВАЛ -->
+    <div class="container">
+        <footer>
+            <!-- Год изменен на 2026 -->
+            <p>&copy; 2026 Map Port Services. Created for VRChat Creators.</p>
+        </footer>
+    </div>
+
+</body>
+</html>
